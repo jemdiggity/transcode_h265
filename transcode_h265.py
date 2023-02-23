@@ -77,9 +77,9 @@ for each in input_files:
         str(each)]
 
     creation_time_tag = subprocess.run(command, capture_output=True, text=True).stdout.strip()
-    creation_time = False if creation_time_tag == "" else datetime.fromisoformat(creation_time_tag).strftime("%Y%m%d%H%M.%S")
+    creation_time = False if creation_time_tag == "" else datetime.fromisoformat(creation_time_tag)
     if creation_time:
-        print("Creation time: " + creation_time)
+        print("Creation time: " + creation_time.ctime())
 
     if not (output_dir / output_file).parent.exists():
         (output_dir / output_file).parent.mkdir(parents=True)
@@ -113,7 +113,7 @@ for each in input_files:
 
         if creation_time:
             command  = ["touch",
-                "-t", creation_time,
+                "-t", creation_time.strftime("%Y%m%d%H%M.%S"),
                 str(output_dir / output_file)]
             subprocess.run(command, check=True)
     except KeyboardInterrupt:
