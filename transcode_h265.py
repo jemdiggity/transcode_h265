@@ -84,36 +84,41 @@ for each in input_files:
     if not (output_dir / output_file).parent.exists():
         (output_dir / output_file).parent.mkdir(parents=True)
 
-    #Final Cut Pro requires "hvc1" metadata tag.
-    if args.fix_tag:
-        command = ["ffmpeg",
-        "-hide_banner",
-        "-i", str(each),
-        "-c:v", "copy",
-        "-tag:v", "hvc1",
-        "-c:a", "copy",
-        "-map_metadata", "0",
-        str(output_dir / output_file)
-        ]
-        subprocess.run(command, check=True)
-    else:
-        command = ["ffmpeg",
+    try:
+        #Final Cut Pro requires "hvc1" metadata tag.
+        if args.fix_tag:
+            command = ["ffmpeg",
             "-hide_banner",
             "-i", str(each),
-            "-c:v", "libx265",
-            "-crf", "26",
-            "-preset", "fast",
+            "-c:v", "copy",
             "-tag:v", "hvc1",
-            "-c:a", "aac",
-            "-b:a", "128k",
+            "-c:a", "copy",
             "-map_metadata", "0",
-            str(output_dir / output_file)]
-        subprocess.run(command, check=True)
+            str(output_dir / output_file)
+            ]
+            subprocess.run(command, check=True)
+        else:
+            command = ["ffmpeg",
+                "-hide_banner",
+                "-i", str(each),
+                "-c:v", "libx265",
+                "-crf", "26",
+                "-preset", "fast",
+                "-tag:v", "hvc1",
+                "-c:a", "aac",
+                "-b:a", "128k",
+                "-map_metadata", "0",
+                str(output_dir / output_file)]
+            subprocess.run(command, check=True)
 
-    if creation_time:
-        command  = ["touch",
-            "-t", creation_time,
-            str(output_dir / output_file)]
-        subprocess.run(command, check=True)
+        if creation_time:
+            command  = ["touch",
+                "-t", creation_time,
+                str(output_dir / output_file)]
+            subprocess.run(command, check=True)
+    except KeyboardInterrupt:
+        print(f"Removing partially transcoded file {output_file}")
+        (output_dir / output_file).unlink()
+        raise
 
 exit(0)
