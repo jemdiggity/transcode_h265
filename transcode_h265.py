@@ -36,7 +36,6 @@ input_files = []
 for input_extension in input_extensions:
     input_files += sorted(list(input_dir.rglob(f'*.{input_extension}')))
 print(f'Found {len(input_files)} input files')
-print(f"{input_files}")
 
 for each in input_files:
     if not each.is_file():
@@ -45,6 +44,7 @@ for each in input_files:
     output_file = each.parent.relative_to(input_dir) / each.with_suffix("." + output_extension).name
     print(output_file)
 
+    #Check if existing file has same duration.
     if (output_dir / output_file).exists():
         input_file_duration = subprocess.run([
         "ffprobe",
@@ -84,6 +84,7 @@ for each in input_files:
     if not (output_dir / output_file).parent.exists():
         (output_dir / output_file).parent.mkdir(parents=True)
 
+    #Final Cut Pro requires "hvc1" metadata tag.
     if args.fix_tag:
         command = ["ffmpeg",
         "-hide_banner",
