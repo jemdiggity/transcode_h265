@@ -34,17 +34,18 @@ output_extension = 'mp4'
 
 input_files = []
 for input_extension in input_extensions:
-    input_files += sorted(list(input_dir.glob(f'*.{input_extension}')))
+    input_files += sorted(list(input_dir.rglob(f'*.{input_extension}')))
 print(f'Found {len(input_files)} input files')
+print(f"{input_files}")
 
 for each in input_files:
     if not each.is_file():
         continue
 
-    output_file = str(each.name)
-    output_file = output_file[0:-3] + output_extension
+    output_file = each.parent.relative_to(input_dir) / each.with_suffix("." + output_extension).name
     print(output_file)
-    if len(list(output_dir.glob(output_file))):
+
+    if (output_dir / output_file).exists():
         input_file_duration = subprocess.run([
         "ffprobe",
         "-v", "error",
@@ -79,6 +80,9 @@ for each in input_files:
     creation_time = False if creation_time_tag == "" else datetime.fromisoformat(creation_time_tag).strftime("%Y%m%d%H%M.%S")
     if creation_time:
         print("Creation time: " + creation_time)
+
+    if not (output_dir / output_file).parent.exists():
+        (output_dir / output_file).parent.mkdir(parents=True)
 
     if args.fix_tag:
         command = ["ffmpeg",
