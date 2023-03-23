@@ -13,6 +13,7 @@ parser = argparse.ArgumentParser(description=
 parser.add_argument('--src', required=True, dest='source_dir', help='source directory')
 parser.add_argument('--out', required=True, dest='out_dir', help='output directory')
 parser.add_argument('--fix_tag', required=False, action='store_const', const=True, dest='fix_tag', help="Just add hvc1 tag")
+parser.add_argument('--crf', required=False, action='store', dest='crf', default=26, help="ffmpeg crf value")
 
 args = parser.parse_args()
 
@@ -41,6 +42,7 @@ for each in input_files:
     if not each.is_file():
         continue
 
+    #output file name & path relative to output_dir
     output_file = each.parent.relative_to(input_dir) / each.with_suffix("." + output_extension).name
     print(output_file)
 
@@ -102,8 +104,8 @@ for each in input_files:
                 "-hide_banner",
                 "-i", str(each),
                 "-c:v", "libx265",
-                "-crf", "26",
-                "-preset", "fast",
+                "-crf", args.crf,
+                "-preset", "medium",
                 "-tag:v", "hvc1",
                 "-c:a", "aac",
                 "-b:a", "128k",
