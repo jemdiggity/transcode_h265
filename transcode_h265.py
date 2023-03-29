@@ -104,7 +104,7 @@ for each in input_files:
                 "-hide_banner",
                 "-i", str(each),
                 "-c:v", "libx265",
-                "-crf", args.crf,
+                "-crf", str(args.crf),
                 "-preset", "medium",
                 "-tag:v", "hvc1",
                 "-c:a", "aac",
